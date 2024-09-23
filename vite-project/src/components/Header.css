@@ -1,0 +1,65 @@
+/*.src/components/Header.css*/
+
+/* Basic styles for navbar */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 20px 40px;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  /* Transparent, glassy effect */
+  .navbar {
+    background: rgba(255, 255, 255, 0.1); /* More transparent for subtle effect */
+    backdrop-filter: blur(10px);          /* Blur effect for the glassy look */
+    box-shadow: none;
+  }
+  
+  /* On scroll (solid background) */
+  .navbar.scrolled {
+    background-color: rgb(20, 19, 19); /* Solid background when scrolled */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Add a slight shadow */
+    padding: 10px 40px; /* Slightly smaller padding to give a more compact look */
+  }
+  
+  /* Left side: Logo and MITWPU */
+  .navbar .logo {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo-img {
+    height: 40px; /* Adjust as needed */
+    margin-right: 10px;
+  }
+  
+  .logo-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #e8def8;
+  }
+  
+  /* Navigation styles */
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px; /* Space between menu items */
+  }
+  
+  nav ul li a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+  }
+  
+  nav ul li a:hover {
+    color: #ff5733; /* Change color on hover */
+  }
+  

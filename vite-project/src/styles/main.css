@@ -1,0 +1,54 @@
+/* src/styles/main.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  header {
+    background-color: #333;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+  }
+  
+  header nav ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  header nav ul li {
+    display: inline;
+    margin: 0 10px;
+  }
+  
+  header nav ul li a {
+    color: white;
+    text-decoration: none;
+  }
+  
+  .hero {
+    background-image: url('/assets/hero-bg.jpg');
+    background-size: cover;
+    height: 300px;
+    color: white;
+    text-align: center;
+    padding-top: 100px;
+  }
+  
+  section.clubs {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px;
+  }
+  
+  section.clubs .club {
+    width: 30%;
+    text-align: center;
+  }
+  
+  section.clubs .club img {
+    width: 100%;
+  }
+  
