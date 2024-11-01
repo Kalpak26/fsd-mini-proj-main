@@ -1,33 +1,35 @@
+// src/components/LoginForm.jsx
 import React, { useState } from 'react';
-import './LoginForm.css'; // Add a separate CSS file for styling
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import './LoginForm.css';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setError('');
     setLoading(true);
-    // Simulate login process (for demo purposes)
-    setTimeout(() => {
-      if (!validateEmail(email)) {
-        setError('Invalid email address');
-        setLoading(false);
-      } else {
-        setError('');
-        // Add login logic here
-        alert('Login successful');
-        setLoading(false);
-      }
-    }, 1500);
-  };
 
-  const validateEmail = (email) => {
-    const re = /\S+@\S+\.\S+/;
-    return re.test(email);
+    try {
+      const user = await login(email, password);
+      if (user.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/'); // or wherever you want regular users to go
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to login. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,28 +43,45 @@ const LoginForm = () => {
             id="email"
             type="email"
             value={email}
-            placeholder="Enter your email"
             onChange={(e) => setEmail(e.target.value)}
-            className={error ? 'input-error' : ''}
+            placeholder="Enter your email"
             required
+            className={error ? 'input-error' : ''}
           />
         </div>
         
         <div className="form-group">
           <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            placeholder="Enter your password"
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div className="password-container">
+            <input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              required
+            />
+            <button
+              type="button"
+              className="toggle-password"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+          </div>
         </div>
-        
-        {error && <p className="error-message">{error}</p>}
 
-        <button type="submit" className="login-btn" disabled={loading}>
+        {error && (
+          <div className="error-message" role="alert">
+            {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          className="login-btn"
+          disabled={loading}
+        >
           {loading ? 'Logging in...' : 'Login'}
         </button>
       </form>

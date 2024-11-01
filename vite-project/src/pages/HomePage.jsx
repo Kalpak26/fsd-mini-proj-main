@@ -1,56 +1,28 @@
-/*.src/pages/HomePage.jsx*/
+// src/pages/HomePage.jsx
+import React, { useEffect, useState, useRef } from 'react';
+import axios from 'axios';
+import Navbar from '../components/Navbar';
+import ClubModal from './ClubModal';
+import './HomePage.css';
+import './Slideshow.css';
 
-import React, { useEffect, useState } from 'react';
-import Header from '../components/Header';
-import ClubModal from './ClubModal'; // Import the modal
-import './HomePage.css'; // Importing CSS for page styling
-import './Slideshow.css'; // Slideshow-specific CSS
-
-const clubs = [
-  {
-    name: "GDSC",
-    heads: "John Doe",
-    contact: "john@example.com",
-    description: "Google Developer Student Clubs is a program for university students to learn, connect, and grow together with like minder people.",
-    registrationLink: "https://gdsc.com",
-    image: "./src/assets/club1.jpg"
-  },
-  {
-    name: "CSI",
-    heads: "Jane Smith",
-    contact: "jane@example.com",
-    description: "The Computer Society of India works on fostering knowledge in computer science and its related fields.",
-    registrationLink: "https://csi.com",  
-    image: "./src/assets/club2.jpg"
-  },
-  {
-    name: "Cosmos",
-    heads: "Jarivs Stark",
-    contact: "jarvis@example.com",
-    description: "Express your creativity and work on collaborative projects with peers.",
-    registrationLink: "https://cosmos.com",
-    image: "./src/assets/club3.jpg"
-  }
-  // Add more clubs here
-];
-
-// Custom Hook for Slideshow Logic with Mouse Drag Functionality
+// Custom Hook for Slideshow Logic
 const useSlideshow = (slidesCount) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
 
-  // Automatically transition to the next slide every 3 seconds
+  // Auto-advance slides
   useEffect(() => {
     if (isDragging) return;
     const interval = setInterval(() => {
       setCurrentSlide((prevSlide) => (prevSlide + 1) % slidesCount);
-    }, 3000); // 3 seconds per slide
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [slidesCount, isDragging]);
 
-  // Function to handle mouse drag
+  // Mouse event handlers for slideshow
   const handleMouseDown = (e) => {
     setIsDragging(true);
     setStartX(e.clientX);
@@ -80,7 +52,20 @@ const useSlideshow = (slidesCount) => {
 };
 
 const HomePage = () => {
-  const slidesCount = 3; // Number of slides in the slideshow
+  // State management for clubs
+  const [clubs, setClubs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedClub, setSelectedClub] = useState(null);
+
+  // State management for events
+  const [events, setEvents] = useState([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+  const [eventsError, setEventsError] = useState(null);
+
+  // Slideshow configuration
+  const slidesCount = 3;
   const {
     currentSlide,
     handleMouseDown,
@@ -88,44 +73,139 @@ const HomePage = () => {
     handleMouseUp,
   } = useSlideshow(slidesCount);
 
-  /*Portal modal for pop up*/
-  const [showModal, setShowModal] = useState(false);
-  const [selectedClub, setSelectedClub] = useState(null);
+  // Fetch clubs from backend
+  useEffect(() => {
+    const fetchClubs = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/clubs');
+        setClubs(response.data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching clubs:', err);
+        setError('Failed to load clubs. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchClubs();
+  }, []);
+
+  // Fetch events from backend
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/events');
+        setEvents(response.data);
+        setEventsError(null);
+      } catch (err) {
+        console.error('Error fetching events:', err);
+        setEventsError('Failed to load events');
+      } finally {
+        setLoadingEvents(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  // Modal handlers
   const openModal = (club) => {
     setSelectedClub(club);
     setShowModal(true);
   };
 
+  // Fallback data for events if API fails
+  const fallbackEvents = [
+    {
+      date: "Mar 14 – Mar 20",
+      title: "John Derek Teaches Historical Course",
+      time: "12:00 am"
+    },
+    {
+      date: "May 29 – May 31",
+      title: "Art in Motion",
+      time: "12:00 am"
+    },
+    {
+      date: "Aug 01 – Aug 09",
+      title: "Chinese Chair Culture Group Meeting",
+      time: "12:00 am"
+    },
+    {
+      date: "Aug 16 – Aug 21",
+      title: "GreenWorks Trashion Show",
+      time: "12:00 am"
+    }
+  ];
+
+  // Fallback clubs data if API fails
+  const fallbackClubs = [
+    {
+      name: "GDSC",
+      heads: "John Doe",
+      contact: "john@example.com",
+      description: "Google Developer Student Clubs is a program for university students to learn, connect, and grow together with like minder people.",
+      registrationLink: "https://gdsc.com",
+      image: "./src/assets/club1.jpg"
+    },
+    {
+      name: "CSI",
+      heads: "Jane Smith",
+      contact: "jane@example.com",
+      description: "The Computer Society of India works on fostering knowledge in computer science and its related fields.",
+      registrationLink: "https://csi.com",  
+      image: "./src/assets/club2.jpg"
+    },
+    {
+      name: "Cosmos",
+      heads: "Jarivs Stark",
+      contact: "jarvis@example.com",
+      description: "Express your creativity and work on collaborative projects with peers.",
+      registrationLink: "https://cosmos.com",
+      image: "./src/assets/club3.jpg"
+    }
+  ];
+
+  // Format date for events display
+  const formatEventDate = (startDate, endDate) => {
+    const options = { month: 'short', day: 'numeric' };
+    const start = new Date(startDate).toLocaleDateString('en-US', options);
+    const end = new Date(endDate).toLocaleDateString('en-US', options);
+    return `${start} – ${end}`;
+  };
+
   return (
     <div className="homepage">
-      {/* Header with logo and navigation */}
-      <Header />
+      {/* Navigation Bar */}
+      <Navbar />
 
-      {/* Full-screen Slideshow */}
+      {/* Hero Slideshow Section */}
       <section
         className="hero-slideshow"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp} // Handle dragging out of the section
+        onMouseLeave={handleMouseUp}
       >
         <div className="slideshow-container">
-          <div className={`slide fade ${currentSlide === 0 ? 'active' : ''}`}>
-            <img src="./src/assets/slide1.jpg" alt="Slide 1" />
-          </div>
-          <div className={`slide fade ${currentSlide === 1 ? 'active' : ''}`}>
-            <img src="./src/assets/slide2.jpg" alt="Slide 2" />
-          </div>
-          <div className={`slide fade ${currentSlide === 2 ? 'active' : ''}`}>
-            <img src="./src/assets/slide3.jpg" alt="Slide 3" />
-          </div>
+          {[1, 2, 3].map((num) => (
+            <div 
+              key={num}
+              className={`slide fade ${currentSlide === num - 1 ? 'active' : ''}`}
+            >
+              <img src={`./src/assets/slide${num}.jpg`} alt={`Slide ${num}`} />
+            </div>
+          ))}
 
-          {/* Dots Navigation */}
+          {/* Slideshow Navigation Dots */}
           <div className="dots-container">
-            <span className={`dot ${currentSlide === 0 ? 'filled' : 'hollow'}`} />
-            <span className={`dot ${currentSlide === 1 ? 'filled' : 'hollow'}`} />
-            <span className={`dot ${currentSlide === 2 ? 'filled' : 'hollow'}`} />
+            {[0, 1, 2].map((num) => (
+              <span
+                key={num}
+                className={`dot ${currentSlide === num ? 'filled' : 'hollow'}`}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -133,85 +213,74 @@ const HomePage = () => {
       {/* Upcoming Events Section */}
       <section className="upcoming-events">
         <h2>Upcoming Events</h2>
-        <div className="events-list">
-          <div className="event-item">
-            <div className="event-date">
-              <p>Mar 14 – Mar 20</p>
-            </div>
-            <div className="event-details">
-              <h3>John Derek Teaches Historical Course</h3>
-            </div>
-            <div className="event-time">
-              <p>12:00 am</p>
-            </div>
-            <div className="event-link">
-              <a href="#">Details</a>
-            </div>
+        {loadingEvents ? (
+          <div className="loading">Loading events...</div>
+        ) : eventsError ? (
+          <div className="error">{eventsError}</div>
+        ) : (
+          <div className="events-list">
+            {(events.length > 0 ? events : fallbackEvents).map((event, index) => (
+              <div className="event-item" key={event._id || index}>
+                <div className="event-date">
+                  <p>{event.startDate && event.endDate 
+                      ? formatEventDate(event.startDate, event.endDate)
+                      : event.date}</p>
+                </div>
+                <div className="event-details">
+                  <h3>{event.title}</h3>
+                </div>
+                <div className="event-time">
+                  <p>{event.time}</p>
+                </div>
+                <div className="event-link">
+                  {event.registrationLink ? (
+                    <a href={event.registrationLink} target="_blank" rel="noopener noreferrer">
+                      Details
+                    </a>
+                  ) : (
+                    <a href="#">Details</a>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="event-item">
-            <div className="event-date">
-              <p>May 29 – May 31</p>
-            </div>
-            <div className="event-details">
-              <h3>Art in Motion</h3>
-            </div>
-            <div className="event-time">
-              <p>12:00 am</p>
-            </div>
-            <div className="event-link">
-              <a href="#">Details</a>
-            </div>
-          </div>
-          <div className="event-item">
-            <div className="event-date">
-              <p>Aug 01 – Aug 09</p>
-            </div>
-            <div className="event-details">
-              <h3>Chinese Chair Culture Group Meeting</h3>
-            </div>
-            <div className="event-time">
-              <p>12:00 am</p>
-            </div>
-            <div className="event-link">
-              <a href="#">Details</a>
-            </div>
-          </div>
-          <div className="event-item">
-            <div className="event-date">
-              <p>Aug 16 – Aug 21</p>
-            </div>
-            <div className="event-details">
-              <h3>GreenWorks Trashion Show</h3>
-            </div>
-            <div className="event-time">
-              <p>12:00 am</p>
-            </div>
-            <div className="event-link">
-              <a href="#">Details</a>
-            </div>
-          </div>
-        </div>
+        )}
       </section>
-
 
       {/* Featured Clubs Section */}
       <section className="clubs-section">
         <h2>Featured Clubs</h2>
-        <div className="clubs-grid">
-          {clubs.map((club) => (
-            <div className="club-card" key={club.name}>
-              <img src={club.image} alt={club.name} />
-              <h3>{club.name}</h3>
-              <p>{club.description.substring(0, 50)}...</p>
-              <button onClick={() => openModal(club)} className="more-info">
-                <i className="fa fa-chevron-down"></i> More Info
-              </button>
-            </div>
-          ))}
-        </div>
+        {loading ? (
+          <div className="loading">Loading clubs...</div>
+        ) : error ? (
+          <div className="error">{error}</div>
+        ) : (
+          <div className="clubs-grid">
+            {(clubs.length > 0 ? clubs : fallbackClubs).map((club) => (
+              <div className="club-card" key={club._id || club.name}>
+                <img 
+                  src={club.image} 
+                  alt={club.name}
+                  onError={(e) => {
+                    e.target.src = "./src/assets/club1.jpg";
+                  }}
+                />
+                <h3>{club.name}</h3>
+                <p>{club.description.substring(0, 50)}...</p>
+                <button onClick={() => openModal(club)} className="more-info">
+                  <i className="fa fa-chevron-down"></i> More Info
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
-        {/* Modal */}
-        <ClubModal showModal={showModal} setShowModal={setShowModal} clubData={selectedClub} />
+        {/* Club Details Modal */}
+        <ClubModal 
+          showModal={showModal} 
+          setShowModal={setShowModal} 
+          clubData={selectedClub} 
+        />
       </section>
 
       {/* Testimonials Section */}
@@ -232,7 +301,7 @@ const HomePage = () => {
       {/* Footer Section */}
       <footer className="footer-section">
         <div className="footer-container">
-          {/* Contact Info */}
+          {/* Contact Information */}
           <div className="footer-col">
             <h3>MIT World Peace University</h3>
             <p>
@@ -244,7 +313,7 @@ const HomePage = () => {
             </p>
           </div>
 
-          {/* Useful Links */}
+          {/* Quick Links */}
           <div className="footer-col">
             <h3>Useful Links</h3>
             <ul>
@@ -255,7 +324,7 @@ const HomePage = () => {
             </ul>
           </div>
 
-          {/* Campus Life */}
+          {/* Campus Information */}
           <div className="footer-col">
             <h3>Campus Today</h3>
             <ul>
@@ -283,6 +352,7 @@ const HomePage = () => {
           </div>
         </div>
 
+        {/* Copyright Information */}
         <div className="footer-bottom">
           <p>
             One of the largest, most diverse universities in India with over 40,000 students.<br />
@@ -291,7 +361,7 @@ const HomePage = () => {
         </div>
       </footer>
     </div>
-  );  
+  );
 };
 
 export default HomePage;

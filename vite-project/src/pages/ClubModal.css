@@ -1,4 +1,6 @@
-.modal-overlay {
+/* .src/pages/ClubModal.css */
+
+  .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -16,11 +18,21 @@
     padding: 20px;
     border-radius: 10px;
     width: 50%;
+    max-height: 90vh; /*Limits modal height to 80% of viewport height*/
     max-width: 800px;
+    overflow-y: auto;  /* Scrollbar */
     position: relative;
   }
+
+  /* Modal Text Content */
+  .modal-content p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
   
-  .close {
+   .close {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -28,17 +40,61 @@
     cursor: pointer;
   }
   
-  /* a {
+  .register-button {
     display: inline-block;
-    margin-top: 15px;
-    padding: 10px 15px;
-    background-color: #007bff;
+    margin-top: 20px;
+    padding: 12px 24px;
+    background-color: #4a47a3; /* Primary color */
     color: white;
     text-decoration: none;
     border-radius: 5px;
-  }    */
-  
-  a:hover {
-    background-color: #0056b3;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .register-button:hover {
+    background-color: #3d3a89; /* Slightly darker on hover */
+    transform: translateY(-2px); /* Lift effect on hover */
+  }
+
+  .social-links {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 10px;
   }
   
+  .instagram-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    text-decoration: none;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+  }
+  
+  .instagram-link:hover {
+    background-color: #f5f5f5;
+    transform: translateY(-2px);
+  }
+  
+  .instagram-icon {
+    width: 24px;
+    height: 24px;
+    /* Remove the filter property to show original Instagram icon colors */
+  }
+  
+  /* Responsive styling */
+  @media (max-width: 768px) {
+    .modal-content {
+      width: 95%;
+      padding: 15px;
+    }
+    
+    .modal-buttons {
+      gap: 15px;
+    }
+  }
+
