@@ -21,7 +21,7 @@ Before you begin, ensure you have installed:
 
 1. **Clone the repository**
 ```bash
-git clone [your-repository-link]
+git clone https://github.com/Kalpak26/fsd-mini-proj-main
 cd college-clubs-website
 ```
 
